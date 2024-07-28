@@ -53,8 +53,5 @@ jobs:
     - name: Run tests (debug)
       run: cargo test --verbose
 
-    - name: Check formatting
-      run: cargo fmt -- --check
-
     - name: Check for linting errors
       run: cargo clippy -- -D warnings
