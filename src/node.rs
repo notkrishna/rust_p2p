@@ -29,7 +29,7 @@ pub enum Message {
 
 #[derive(Clone)]
 pub struct Node {
-    id: String,
+    pub id: String,
     peers: Arc<Mutex<Vec<SocketAddr>>>,
     brodcast_addr: SocketAddr,
 }

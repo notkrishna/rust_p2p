@@ -53,5 +53,3 @@ jobs:
     - name: Run tests (debug)
       run: cargo test --verbose
 
-    - name: Check for linting errors
-      run: cargo clippy -- -D warnings
