@@ -8,12 +8,17 @@ use tokio::task;
 use std::time::Duration;
 use tokio::time::timeout;
 
+// TODO:
+// Implement mpsc channel for send and recieve message
+
 #[tokio::test]
 async fn test_add_peer(){
     let broadcast_addr: SocketAddr = "127.0.0.1:6200".parse().unwrap();
     let peer_addr: SocketAddr = "127.0.0.1:6201".parse().unwrap();
     
-    let node = Node::new(broadcast_addr);
+    let mut node = Node::new(broadcast_addr)
+    .await
+    .expect("Failed to create a node");
 
     node.add_peer(peer_addr).await;
 
@@ -24,10 +29,12 @@ async fn test_add_peer(){
 
 #[tokio::test]
 async fn test_send_message() {
-    let broadcast_addr: SocketAddr = "127.0.0.1:6200".parse().unwrap();
+    let broadcast_addr: SocketAddr = "127.0.0.1:6202".parse().unwrap();
     let peer_addr: SocketAddr = "127.0.0.1:6203".parse().unwrap();
     
-    let node = Node::new(broadcast_addr);
+    let mut node = Node::new(broadcast_addr)
+        .await
+        .expect("Failed to create a node");
 
     node.add_peer(peer_addr).await;
 
@@ -74,10 +81,12 @@ async fn test_send_message() {
 #[tokio::test]
 async fn test_recieve_message() {
 
-    let broadcast_addr: SocketAddr = "127.0.0.1:6200".parse().unwrap();
+    let broadcast_addr: SocketAddr = "127.0.0.1:6204".parse().unwrap();
     let peer_addr: SocketAddr = "127.0.0.1:6205".parse().unwrap();
     
-    let node = Node::new(broadcast_addr);
+    let mut node = Node::new(broadcast_addr)
+        .await
+        .expect("Failed to create a node");
 
     node.add_peer(peer_addr).await;
 
@@ -121,4 +130,9 @@ async fn test_recieve_message() {
         Ok(_) => println!("Successful!"),
         Err(_) => panic!("Timeout while waiting for incoming messages"),
     }
+
 }
+
+// async fn test_broadcast_message() {
+//     let node
+// }

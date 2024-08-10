@@ -16,7 +16,9 @@ use log::{
     error
 };
 
-#[derive(Serialize, Deserialize, Debug)]
+use rand::seq::SliceRandom;
+
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 pub enum Message {
     Handshake {
         id: String
@@ -35,24 +37,27 @@ pub struct Node {
 }
 
 impl Node {
-    pub fn new(
-        brodcast_addr: SocketAddr, 
-    ) -> Self {
+    pub async fn new(brodcast_addr: SocketAddr) -> Result<Self, Box<dyn std::error::Error>> {
         let id = Uuid::new_v4().to_string();
         
-        Node {
+        let listener = TcpListener::bind(&brodcast_addr).await?;
+        
+        Ok(Self {
             id,
             peers: Arc::new(Mutex::new(Vec::new())),
             brodcast_addr,
-        }
+        })
     }
 
-    pub async fn add_peer(&self, addr: SocketAddr) {
+    // Need Result<..> to debug
+    pub async fn add_peer(&self, addr: SocketAddr) -> Result<(), Box<dyn std::error::Error>> {
         let mut peers = self.peers.lock().await;
         if !peers.contains(&addr) {
             peers.push(addr);
             info!("Peer added: {}", addr);
         }
+
+        Ok(())
     }
     
     pub async fn get_peers(&self) -> Vec<SocketAddr> {
@@ -98,4 +103,20 @@ impl Node {
     
         }
     }
+
+    // Choosing gossip protocol over multicast for peer discovery
+    pub async fn gossip_message(&self, msg:&Message) -> Result<(), Box<dyn std::error::Error>> {
+        let peers = self.peers.lock().await;
+        let sample_size = (peers.len() as f64).ceil() as usize;
+        let sample_peers = peers.choose_multiple(&mut rand::thread_rng(), sample_size);
+
+        for peer in sample_peers {
+            self.send_message(msg, peer).await?;
+        }
+
+        Ok(())
+    }
+
+    
+
 }
