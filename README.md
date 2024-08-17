@@ -17,7 +17,18 @@ cd rust_p2p
 ```bash
 cargo build
 ```
-3. Run tests
+3. Run one primary instance (brodcaster)
 ```bash
-cargo test
+cargo run -- 127.0.0.1:8080
 ```
+4. Run two secondary instances (receivers) in seperate terminals.
+> **Note:** The IPs should be same as mentioned below.
+```bash
+cargo run -- 127.0.0.1:8081
+```
+
+```bash
+cargo run -- 127.0.0.1:8082
+```
+
+Now you can start writing messages in broadcaster's terminal.

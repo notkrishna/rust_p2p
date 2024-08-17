@@ -40,7 +40,6 @@ pub enum Message {
 
 
 impl Message {
-    // Implement the `print` method to print the contents of the Message
     pub fn print(&self) {
         match self {
             Message::Handshake { id } => {
@@ -110,7 +109,6 @@ impl Node {
         let json = serde_json::to_string(msg)?;
         let mut stream = TcpStream::connect(addr).await?;
         stream.write_all(json.as_bytes()).await?;
-        println!("Sending message to {}", addr);
         Ok(())
     }
 
@@ -124,7 +122,6 @@ impl Node {
     }
 
 
-    // Can't make mpsc work right now
 
     pub async fn recieve_message(&self, addr:&SocketAddr, tx: mpsc::Sender<Message>) -> Result<(), Box<dyn std::error::Error>> {
         let listener = TcpListener::bind(addr).await?;
