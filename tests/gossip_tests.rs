@@ -48,7 +48,7 @@ async fn test_gossip_messages() {
         }
     );
 
-    node.gossip_message(&*msg_clone)
+    node.gossip_message()
     .await
     .expect("Failed to broadcast message");
 

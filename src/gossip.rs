@@ -11,7 +11,7 @@ pub async fn gossip_at_interval(node: Node) -> Result<(), Box<dyn std::error::Er
         let msg = Message::Handshake { 
             id: node.id.clone(), 
         };
-    node.gossip_message(&msg).await?;
+    node.gossip_message().await?;
 
     tokio::time::sleep(Duration::from_secs(5)).await;
     }
