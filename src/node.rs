@@ -6,6 +6,8 @@ use std::collections::HashSet;
 use serde::{Deserialize, Serialize};
 use serde_json;
 
+use env_logger::Env;
+
 use uuid::Uuid;
 use tokio::sync::{Mutex, mpsc};
 use tokio::net::{TcpListener, TcpStream};
@@ -43,10 +45,10 @@ impl Message {
     pub fn print(&self) {
         match self {
             Message::Handshake { id } => {
-                println!("Received Handshake with ID: {}", id);
+                info!("Received Handshake with ID: {}", id);
             }
             Message::Text { from, content } => {
-                println!("Received Message from {}: {}", from, content);
+                info!("Received Message from {}: {}", from, content);
             }
         }
     }
@@ -114,7 +116,7 @@ impl Node {
 
     pub async fn broadcast_message(&self, msg: &Message) -> Result<(), Box<dyn std::error::Error>> {
         let peers = self.peers.lock().await;
-        println!("Printing peers {:?}", peers);
+        info!("Printing peers {:?}", peers);
         for peer in peers.iter() {
             self.send_message(msg, peer).await?;
         }
@@ -125,10 +127,10 @@ impl Node {
 
     pub async fn recieve_message(&self, addr:&SocketAddr, tx: mpsc::Sender<Message>) -> Result<(), Box<dyn std::error::Error>> {
         let listener = TcpListener::bind(addr).await?;
-        println!("\nListening for messages ... (node.rs)\n");
+        info!("\nListening for messages ... (node.rs)\n");
         loop {
             let (mut stream, peer_addr) = listener.accept().await?;
-            println!("Accepted connection from {}", peer_addr);
+            info!("Accepted connection from {}", peer_addr);
             
             let mut buff = vec![0;1024];
             let x = stream.read(&mut buff).await?;
@@ -137,9 +139,9 @@ impl Node {
                     // msg.print();
                 match &msg {
                     Message::Handshake { id } => {
-                        println!("Handshake recieved from {}", peer_addr);
+                        info!("Handshake recieved from {}", peer_addr);
                         if let Err(e) = self.add_peer(peer_addr).await {
-                            eprintln!("Error adding peer: {}", e);
+                            error!("Error adding peer: {}", e);
                         };
                     },
                     Message::Text { 
@@ -153,7 +155,7 @@ impl Node {
                 }
             },
             Err(e) => {
-                eprintln!("Error deserializing message: {}", e);
+                error!("Error deserializing message: {}", e);
             }
             };
     
@@ -162,13 +164,13 @@ impl Node {
 
     // Choosing gossip protocol over multicast for peer discovery
     pub async fn gossip_message(&self) -> Result<(), Box<dyn std::error::Error>> {
-        println!("\nGossiping (node.rs) ...");
+        info!("\nGossiping (node.rs) ...");
         let peers = self.peers.lock().await;
         let sample_size = (peers.len() as f64).ceil() as usize;
         let sample_peers = peers.choose_multiple(&mut rand::thread_rng(), sample_size);
 
         let msg = &Message::Handshake { id: self.id.clone() };
-        println!("Handshake performed by {}...\n", self.broadcast_addr);
+        info!("Handshake performed by {}...\n", self.broadcast_addr);
 
         for peer in sample_peers {
             self.send_message(&msg, peer).await?;
@@ -182,14 +184,14 @@ impl Node {
         let stdin = io::stdin();
         let mut reader = BufReader::new(stdin).lines();
 
-        println!("\nStart writing your message ...\n");
+        info!("\nStart writing your message ...\n");
         while let Some(line) = reader.next_line().await? {
             let msg: Message = Message::Text { 
                 from: self.id.clone(), 
                 content: line, 
             };
             if let Err(e) = self.broadcast_message(&msg).await{
-                eprintln!("Error broadcasting message: {}", e);
+                error!("Error broadcasting message: {}", e);
             };
         }
         // loop {
