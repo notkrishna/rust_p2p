@@ -184,7 +184,7 @@ impl Node {
         let stdin = io::stdin();
         let mut reader = BufReader::new(stdin).lines();
 
-        info!("\nStart writing your message ...\n");
+        println!("\n---- Your message ----\n");
         while let Some(line) = reader.next_line().await? {
             let msg: Message = Message::Text { 
                 from: self.id.clone(), 
