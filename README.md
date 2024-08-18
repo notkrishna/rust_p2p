@@ -13,11 +13,7 @@ Make sure you have Rust and cargo installed. Install them from https://www.rust-
 git clone https://github.com/notkrishna/rust_p2p.git
 cd rust_p2p
 ```
-2. Build the project
-```bash
-cargo build
-```
-3. Change the config.toml if you want to. Default configuration runs on 127.0.0.1:8080.
+2. Change the config.toml if you want to. Default configuration runs on 127.0.0.1:8080.
 ```toml
 #Example config file
 [broadcast]
@@ -27,6 +23,10 @@ address = "127.0.0.1:8080"
 addresses = ["127.0.0.1:8081", "127.0.0.1:8082"]
 ```
 
+3. Build the project
+```bash
+cargo build
+```
 
 4. Run one primary instance (brodcaster)
 ```bash
