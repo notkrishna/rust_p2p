@@ -16,7 +16,7 @@ cargo build
 ```
 3. Change the config.toml if you want to. Default configuration runs on 127.0.0.1:8080.
 ```toml
-#Example cofig file
+#Example config file
 [broadcast]
 address = "127.0.0.1:8080"
 
